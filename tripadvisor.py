@@ -55,72 +55,53 @@ if t=="Rating Predictor":
     ratingpredictor_df=pandas.DataFrame(ratingpredictor_csv)
     User_Id=st.text_input("Enter Your User Id")
     PlaceofVisit=st.text_input("Enter the destination to be visited")
-    VisitMode=st.selectbox('VisitMode',["Business","Couples","Family","Friends","Solo"])
-    VisitMonth=st.text_input("Enter the Visit Month(enter a number between 1 to 12)")
-    cityname=st.text_input("Enter your Present City")
-    countryname=st.text_input("Enter your countryname")
+    VisitDate=st.date_input("Enter the planned date of visit")
+    visitmonth=VisitDate.month
+    visityear=VisitDate.year
+ 
 
-    if User_Id and PlaceofVisit and VisitMode and VisitMonth and cityname and countryname :
+    if User_Id and PlaceofVisit and VisitDate :
             if PlaceofVisit in ratingpredictor_df['Attraction'].values:
-                 
-                AttractionId=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AttractionId'].values[0]
-                AttractionTypeId=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AttractionTypeId'].values[0]
-                AttractionId=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AttractionId'].values[0]
                 AverageRatingforAttraction=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AverageRatingforAttraction'].values[0]
-                number_of_visits=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'number_of_visits'].values[0]
-                VisitModeId=getvisit_mode(VisitMode)
-                season_Summer=ratingpredictor_df.loc[ratingpredictor_df['VisitMonth']==int(VisitMonth),'season_Summer'].values[0]
-                season_Monsoon=ratingpredictor_df.loc[ratingpredictor_df['VisitMonth']==int(VisitMonth),'season_Monsoon'].values[0]
-                season_Spring=ratingpredictor_df.loc[ratingpredictor_df['VisitMonth']==int(VisitMonth),'season_Spring'].values[0]
-                season_Winter=ratingpredictor_df.loc[ratingpredictor_df['VisitMonth']==int(VisitMonth),'season_Winter'].values[0] 
+                season_Summer=ratingpredictor_df.loc[(ratingpredictor_df['VisitMonth']==int(visitmonth)),'season_Summer'].values[0]
+                season_Monsoon=ratingpredictor_df.loc[(ratingpredictor_df['VisitMonth']==int(visitmonth)),'season_Monsoon'].values[0]
+                season_Spring=ratingpredictor_df.loc[(ratingpredictor_df['VisitMonth']==int(visitmonth)),'season_Spring'].values[0]
+                season_Winter=ratingpredictor_df.loc[(ratingpredictor_df['VisitMonth']==int(visitmonth)),'season_Winter'].values[0] 
+                if visityear in ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'VisitYear'].values:
+                    yearly_growth_rate= ratingpredictor_df.loc[(ratingpredictor_df['Attraction']==PlaceofVisit)&(ratingpredictor_df['VisitYear']==int(visityear)),'yearly_growth_rate'].values[0]
+                    previousyearrating= ratingpredictor_df.loc[(ratingpredictor_df['Attraction']==PlaceofVisit)&(ratingpredictor_df['VisitYear']==int(visityear)),'previousyearrating'].values[0]
+                else:
+                    attraction_df=ratingpredictor_df[ratingpredictor_df['Attraction']==PlaceofVisit]
+                    previous_year=attraction_df['VisitYear'].iloc[(attraction_df['VisitYear'] - visityear).abs().argsort()[:1]].values[0]
+                    previousyearrating=attraction_df.loc[attraction_df['VisitYear']==int(previous_year),'Rating'].values[0]
+                    yearly_growth_rate=attraction_df.loc[attraction_df['VisitYear']==int(previous_year),'yearly_growth_rate'].values[0]
 
             else:
                  st.write("This ia a new attraction.We need to Update our Database .. Kindly try with some other destination until we update")
 
             if int(User_Id) in ratingpredictor_df['UserId'].values:      
-                UserId=int(User_Id)
-                CityId=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'CityId'].values[0]
-                CountryId=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'CountryId'].values[0]
-                RegionId=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'RegionId'].values[0]
-                ContenentId=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'ContenentId'].values[0]
-                AveragrRatingbyUser=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'AveragrRatingbyUser'].values[0]
-                MostFreqAttractionType=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'MostFreqAttractionType'].values[0]
-                TotalVisitsByUser=ratingpredictor_df.loc[ratingpredictor_df['UserId']==UserId,'TotalVisitsByUser'].values[0]
+                AveragrRatingbyUser=ratingpredictor_df.loc[ratingpredictor_df['UserId']==User_Id,'AveragrRatingbyUser'].values[0]
             else:
-                 UserId=int(User_Id)
-                 CityId=ratingpredictor_df.loc[ratingpredictor_df['CityName']==cityname,'CityId'].values[0]
-                 CountryId=ratingpredictor_df.loc[ratingpredictor_df['Country']==countryname,'CountryId'].values[0]
-                 RegionId=ratingpredictor_df.loc[(ratingpredictor_df['Country']==countryname) & (ratingpredictor_df['CityName']==cityname) ,'RegionId'].values[0]
-                 ContenentId=ratingpredictor_df.loc[(ratingpredictor_df['Country']==countryname) & (ratingpredictor_df['CityName']==cityname) ,'ContenentId'].values[0]
-                 AveragrRatingbyUser=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AverageRatingforAttraction'].values[0]
-                 TotalVisitsByUser=0
-                 MostFreqAttractionType=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AttractionTypeId'].values[0]
+                AveragrRatingbyUser=ratingpredictor_df.loc[ratingpredictor_df['Attraction']==PlaceofVisit,'AverageRatingforAttraction'].values[0]
 
-            if st.button("Predict Rating"):
+            if PlaceofVisit in ratingpredictor_df['Attraction'].values:
+                 
+                if st.button("Predict Rating"):
                     st.write("Fetching the prediction") 
                     input_data = {
-                    'UserId': [UserId],
-                    'AttractionId': [AttractionId],
-                    'AttractionTypeId': [AttractionTypeId],
-                    'CityId': [CityId],
-                    'CountryId': [CountryId],
-                    'RegionId': [RegionId],
-                    'ContenentId': [ContenentId],
-                    'VisitModeId': [VisitModeId],
+                    'yearly_growth_rate':[yearly_growth_rate],
                     'AverageRatingforAttraction': [AverageRatingforAttraction],
                     'AveragrRatingbyUser': [AveragrRatingbyUser],
-                    'MostFreqAttractionType': [MostFreqAttractionType],
-                    'number_of_visits': [number_of_visits],
                     'season_Summer': [season_Summer],
                     'season_Monsoon': [season_Monsoon],
                     'season_Winter': [season_Winter],
                     'season_Spring': [season_Spring],
-                    'TotalVisitsByUser': [TotalVisitsByUser]
+                    'previousyearrating':[previousyearrating]
                     }
                     input_df = pandas.DataFrame(input_data)
                     st.write("Loading the Model")
                     #Loading the model
-                    model=joblib.load('C:/Users/SESA742087/Documents/STREAMLIT/env/ratingpredictor.pkl')
+                    model=joblib.load('C:/Users/SESA742087/Documents/STREAMLIT/env/ratingpredictorwithlessfeatures.pkl')
                     # Pass the DataFrame to the model
                     prediction = model.predict(input_df)
                     clipped_prediction=np.clip(prediction,1,5)
@@ -134,16 +115,12 @@ elif t=="VisitMode Predictor":
     PlaceofVisit=st.text_input("Enter the destination to be visited")
     VisitMonth=st.text_input("Enter the Visit Month(enter a number between 1 to 12)")
     cityname=st.text_input("Enter your Present City")
-    countryname=st.text_input("Enter your countryname")
+
     
-    if User_Id and PlaceofVisit and VisitMonth and cityname and countryname :
+    if User_Id and PlaceofVisit and VisitMonth and cityname:
             if PlaceofVisit in visitmodepredictor_df['Attraction'].values:
-                 
+
                 AttractionId=visitmodepredictor_df.loc[visitmodepredictor_df['Attraction']==PlaceofVisit,'AttractionId'].values[0]
-                AttractionCityId=visitmodepredictor_df.loc[visitmodepredictor_df['Attraction']==PlaceofVisit,'AttractionCityId'].values[0]
-                AttractionTypeId=visitmodepredictor_df.loc[visitmodepredictor_df['Attraction']==PlaceofVisit,'AttractionTypeId'].values[0]
-                AverageRatingforAttraction=visitmodepredictor_df.loc[visitmodepredictor_df['Attraction']==PlaceofVisit,'AverageRatingforAttraction'].values[0]
-                number_of_visits=visitmodepredictor_df.loc[visitmodepredictor_df['Attraction']==PlaceofVisit,'number_of_visits'].values[0]
                 season_Summer=visitmodepredictor_df.loc[visitmodepredictor_df['VisitMonth']==int(VisitMonth),'season_Summer'].values[0]
                 season_Monsoon=visitmodepredictor_df.loc[visitmodepredictor_df['VisitMonth']==int(VisitMonth),'season_Monsoon'].values[0]
                 season_Spring=visitmodepredictor_df.loc[visitmodepredictor_df['VisitMonth']==int(VisitMonth),'season_Spring'].values[0]
@@ -159,31 +136,25 @@ elif t=="VisitMode Predictor":
                 UserId=int(User_Id)
                 CityId=visitmodepredictor_df.loc[visitmodepredictor_df['UserId']==UserId,'CityId'].values[0] 
                 PreviousVisitModebyUser=visitmodepredictor_df.loc[visitmodepredictor_df['UserId']==UserId,'PreviousVisitModebyUser'].values[0]
-                Rating=visitmodepredictor_df.loc[visitmodepredictor_df['UserId']==UserId,'Rating'].values[0]
+                visitmodebyuserfromsamecity=visitmodepredictor_df.loc[visitmodepredictor_df['CityId']==CityId,'visitmodebyuserfromsamecity'].values[0]
             else:
                  UserId=int(User_Id)
                  CityId=visitmodepredictor_df.loc[visitmodepredictor_df['CityName']==cityname,'CityId'].values[0] 
                  PreviousVisitModebyUser=previousvisitmodeforattraction
-                 Rating=AverageRatingforAttraction
-
-            if st.button("Predict VisitMode"):
+                 visitmodebyuserfromsamecity=visitmodepredictor_df.loc[visitmodepredictor_df['CityId']==CityId,'visitmodebyuserfromsamecity'].values[0]
+            if PlaceofVisit in visitmodepredictor_df['Attraction'].values:   
+                if st.button("Predict VisitMode"):
                     st.write("Fetching the prediction") 
                     input_data_visitmode = {
-                    'UserId': [UserId],
                     'AttractionId': [AttractionId],
-                    'AttractionTypeId': [AttractionTypeId],
-                    'AttractionCityId':[AttractionCityId],
-                    'CityId': [CityId],
-                    'IsVacationTime':IsVacationTime,
+                    'IsVacationTime':[IsVacationTime],
                     'PreviousVisitModebyUser': [PreviousVisitModebyUser],
-                    'previousvisitmodeforattraction':previousvisitmodeforattraction,
-                    'number_of_visits': [number_of_visits],
+                    'previousvisitmodeforattraction':[previousvisitmodeforattraction],
                     'season_Summer': [season_Summer],
                     'season_Monsoon': [season_Monsoon],
                     'season_Winter': [season_Winter],
                     'season_Spring': [season_Spring],
-                    'Rating':Rating,
-                    'AverageRatingforAttraction': [AverageRatingforAttraction],
+                    'visitmodebyuserfromsamecity':[visitmodebyuserfromsamecity]
                     }
                     visitmodeinput_df = pandas.DataFrame(input_data_visitmode)
                     st.write("Loading the Model")
